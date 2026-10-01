@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Study Stopwatch</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc; /* slate-50 */
+        }
+        .font-mono {
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        /* Kustomisasi scrollbar untuk tabel lap agar rapi */
+        .lap-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .lap-container::-webkit-scrollbar-track {
+            background: #f1f5f9; 
+            border-radius: 4px;
+        }
+        .lap-container::-webkit-scrollbar-thumb {
+            background: #cbd5e1; 
+            border-radius: 4px;
+        }
+        .lap-container::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; 
+        }
+        
+        /* Mencegah input text mengganggu tata letak grid */
+        input[type="text"] {
+            min-width: 0;
+        }
+        
+        /* Animasi sederhana */
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(-8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-in {
+            animation: slideIn 0.25s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen flex flex-col">
+
+    <header class="bg-white shadow-sm border-b border-slate-200 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-blue-600 text-white p-2 rounded-lg shadow-sm">
+                    <i class="fas fa-stopwatch text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-900 leading-tight">Time Study Pro</h1>
+                    <p class="text-xs text-slate-500 font-medium">Pengukuran Waktu Kontinu (Continuous Timing)</p>
+                </div>
+            </div>
+            
+            <div class="flex flex-wrap items-center justify-center gap-2">
+                <button onclick="app.startAll()" class="px-4 py-2 bg-emerald-100 text-emerald-700 hover:bg-emerald-200 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
+                    <i class="fas fa-play"></i> Mulai Semua
+                </button>
+                <button onclick="app.pauseAll()" class="px-4 py-2 bg-amber-100 text-amber-700 hover:bg-amber-200 rounded-lg text-sm font-semibold transition-colors flex items-center gap-2">
+                    <i class="fas fa-pause"></i> Jeda Semua
+                </button>
+                <button onclick="app.addStopwatch()" class="px-4 py-2 bg-blue-600 text-white hover:bg-blue-700 rounded-lg shadow-sm shadow-blue-200 text-sm font-semibold transition-all flex items-center gap-2">
+                    <i class="fas fa-plus"></i> Tambah Subjek
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 relative">
+        <!-- Area Grid Stopwatch -->
+        <div id="stopwatch-grid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <!-- Kartu-kartu stopwatch akan dirender di sini oleh JavaScript -->
+        </div>
+        
+        <!-- Pesan kosong jika tidak ada stopwatch (Empty State) -->
+        <div id="empty-state" class="hidden flex-col items-center justify-center py-24 text-center">
+            <div class="bg-blue-50 p-6 rounded-full mb-5 ring-8 ring-white shadow-sm">
+                <i class="fas fa-clipboard-list text-5xl text-blue-400"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800">Belum ada Subjek / Stopwatch</h3>
+            <p class="text-slate-500 mt-2 mb-6 max-w-md">Tambahkan instrumen stopwatch untuk mulai merekam waktu elemen kerja secara berkelanjutan pada subjek atau mesin.</p>
+            <button onclick="app.addStopwatch()" class="px-6 py-3 bg-blue-600 text-white hover:bg-blue-700 rounded-xl shadow-md font-semibold transition-all hover:-translate-y-0.5">
+                <i class="fas fa-plus mr-2"></i> Buat Stopwatch Pertama
+            </button>
+        </div>
+    </main>
+
+    <!-- Modal Kustom (Pengganti Alert/Confirm bawaan browser agar aman) -->
+    <div id="custom-modal" class="hidden fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4 transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 transform scale-95 transition-all duration-200 ease-out" id="custom-modal-content">
+            <h3 id="custom-modal-title" class="text-xl font-bold text-slate-900 mb-2">Peringatan</h3>
+            <p id="custom-modal-message" class="text-slate-600 mb-6 text-sm leading-relaxed">Pesan akan tampil disini.</p>
+            <div class="flex justify-end gap-3" id="custom-modal-actions">
+                <!-- Tombol aksi akan disuntikkan secara dinamis -->
+            </div>
+        </div>
+    </div>
+
+    <template id="stopwatch-template">
+        <div class="stopwatch-card bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col transition-all hover:shadow-md h-[580px]">
+            
+            <!-- Header Kartu Stopwatch (Judul & Aksi) -->
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/80">
+                <div class="flex-grow mr-4 relative group">
+                    <i class="fas fa-pen absolute left-2 top-1/2 transform -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 text-xs transition-colors"></i>
+                    <input type="text" class="sw-title w-full pl-7 pr-2 py-1.5 bg-transparent border-b-2 border-transparent hover:border-slate-300 focus:border-blue-500 focus:outline-none font-bold text-slate-800 text-lg transition-colors placeholder-slate-400" placeholder="Ketik Nama Subjek...">
+                </div>
+                <div class="flex items-center gap-1">
+                    <button class="sw-export p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors tooltip-btn" title="Unduh CSV Excel">
+                        <i class="fas fa-file-csv text-lg"></i>
+                    </button>
+                    <button class="sw-delete p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors tooltip-btn" title="Hapus Stopwatch">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tampilan Waktu (Digital Timer) -->
+            <div class="px-5 py-7 flex flex-col items-center justify-center flex-shrink-0 bg-white">
+                <div class="sw-time text-5xl sm:text-6xl font-mono font-bold text-slate-800 tracking-tight tabular-nums">00:00:00.00</div>
+                <div class="text-[10px] font-bold text-slate-400 mt-3 tracking-widest uppercase bg-slate-100 px-3 py-1 rounded-full">Jam : Menit : Detik . MS</div>
+            </div>
+
+            <!-- Kontrol Tombol Utama (Mulai, Tandai, Ulang) -->
+            <div class="px-5 pb-5 grid grid-cols-3 gap-3 flex-shrink-0">
+                <button class="sw-start-pause flex flex-col items-center justify-center gap-1.5 py-3.5 bg-slate-100 hover:bg-emerald-500 text-slate-700 hover:text-white rounded-xl font-semibold transition-all duration-200 group">
+                    <i class="fas fa-play text-xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[11px] uppercase tracking-wide">Mulai</span>
+                </button>
+                
+                <button class="sw-mark flex flex-col items-center justify-center gap-1.5 py-3.5 bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white rounded-xl font-semibold transition-all duration-200 group border border-blue-100 hover:border-transparent shadow-sm">
+                    <i class="fas fa-flag text-xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[11px] uppercase tracking-wide">Tandai</span>
+                </button>
+                
+                <button class="sw-reset flex flex-col items-center justify-center gap-1.5 py-3.5 bg-slate-100 hover:bg-slate-700 text-slate-700 hover:text-white rounded-xl font-semibold transition-all duration-200 group">
+                    <i class="fas fa-rotate-left text-xl group-hover:scale-110 transition-transform -scale-x-100"></i>
+                    <span class="text-[11px] uppercase tracking-wide">Ulang</span>
+                </button>
+            </div>
+
+            <!-- Tabel Data Waktu Elemen Berkelanjutan -->
+            <div class="flex-grow flex flex-col border-t border-slate-200 overflow-hidden bg-slate-50">
+                <div class="grid grid-cols-12 gap-2 px-4 py-2.5 bg-slate-200/60 text-[10px] font-bold text-slate-600 uppercase tracking-wider border-b border-slate-200">
+                    <div class="col-span-2 text-center" title="Nomor Elemen">Elm</div>
+                    <div class="col-span-3 text-right" title="Waktu per Elemen (Selisih)">W. Elemen</div>
+                    <div class="col-span-3 text-right" title="Waktu Kumulatif (Total)">Kumulatif</div>
+                    <div class="col-span-4 pl-3">Catatan</div>
+                </div>
+                
+                <!-- Kontainer Daftar Waktu (Scrollable) -->
+                <div class="sw-lap-list lap-container flex-grow overflow-y-auto px-3 py-3 space-y-2 relative">
+                    <!-- Placeholder sebelum ada data -->
+                    <div class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center opacity-70">
+                        <i class="fas fa-stopwatch-20 text-3xl text-slate-300 mb-2"></i>
+                        <span class="text-sm font-medium text-slate-500">Belum ada tanda.</span>
+                        <span class="text-xs text-slate-400 mt-1">Tekan <b>Mulai</b> lalu gunakan tombol <b>Tandai</b> untuk mencatat elemen kerja.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        // Sistem Modal Kustom sebagai pengganti window.alert dan window.confirm
+        const UIModal = {
+            show(title, message, type = 'info', onConfirm = null) {
+                const modal = document.getElementById('custom-modal');
+                const titleEl = document.getElementById('custom-modal-title');
+                const messageEl = document.getElementById('custom-modal-message');
+                const actionsEl = document.getElementById('custom-modal-actions');
+                const contentEl = document.getElementById('custom-modal-content');
+
+                titleEl.textContent = title;
+                messageEl.textContent = message;
+                actionsEl.innerHTML = '';
+                
+                // Menentukan jenis tombol berdasarkan tipe (konfirmasi vs informasi)
+                if (type === 'confirm') {
+                    const cancelBtn = document.createElement('button');
+                    cancelBtn.className = 'px-5 py-2.5 bg-slate-100 text-slate-700 hover:bg-slate-200 rounded-lg text-sm font-semibold transition-colors';
+                    cancelBtn.textContent = 'Batal';
+                    cancelBtn.onclick = () => this.hide();
+                    
+                    const confirmBtn = document.createElement('button');
+                    confirmBtn.className = 'px-5 py-2.5 bg-red-600 text-white hover:bg-red-700 rounded-lg text-sm font-semibold transition-colors shadow-sm';
+                    confirmBtn.textContent = 'Ya, Lanjutkan';
+                    confirmBtn.onclick = () => {
+                        if(onConfirm) onConfirm();
+                        this.hide();
+                    };
+                    
+                    actionsEl.appendChild(cancelBtn);
+                    actionsEl.appendChild(confirmBtn);
+                } else {
+                    const okBtn = document.createElement('button');
+                    okBtn.className = 'px-5 py-2.5 bg-blue-600 text-white hover:bg-blue-700 rounded-lg text-sm font-semibold transition-colors shadow-sm';
+                    okBtn.textContent = 'Mengerti';
+                    okBtn.onclick = () => this.hide();
+                    actionsEl.appendChild(okBtn);
+                }
+
+                // Efek Animasi Tampil
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    contentEl.classList.remove('scale-95');
+                    contentEl.classList.add('scale-100');
+                }, 10);
+            },
+            hide() {
+                const modal = document.getElementById('custom-modal');
+                const contentEl = document.getElementById('custom-modal-content');
+                
+                // Efek Animasi Hilang
+                contentEl.classList.remove('scale-100');
+                contentEl.classList.add('scale-95');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 200);
+            }
+        };
+
+        // Fungsi memformat milidetik ke bentuk String (HH:MM:SS.ms)
+        function formatTime(ms) {
+            if (ms < 0) ms = 0;
+            
+            let h = Math.floor(ms / 3600000).toString().padStart(2, '0');
+            let m = Math.floor((ms % 3600000) / 60000).toString().padStart(2, '0');
+            let s = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0');
+            let mil = Math.floor((ms % 1000) / 10).toString().padStart(2, '0'); 
+            
+            return `${h}:${m}:${s}.${mil}`;
+        }
+
+        // Format yang lebih pendek (menyembunyikan jam jika belum mencapai 1 jam)
+        function formatTimeShort(ms) {
+            if (ms < 0) ms = 0;
+            let h = Math.floor(ms / 3600000);
+            let m = Math.floor((ms % 3600000) / 60000).toString().padStart(2, '0');
+            let s = Math.floor((ms % 60000) / 1000).toString().padStart(2, '0');
+            let mil = Math.floor((ms % 1000) / 10).toString().padStart(2, '0');
+            
+            if (h > 0) return `${h}:${m}:${s}.${mil}`;
+            return `${m}:${s}.${mil}`;
+        }
+
+        class Stopwatch {
+            constructor(id) {
+                this.id = id;
+                this.title = `Subjek / Mesin ${id}`;
+                
+                // Variabel Pengukuran Waktu Utama
+                this.elapsed = 0;          
+                this.startTime = 0;        
+                this.running = false;      
+                
+                // Variabel Pengukuran Elemen Kerja
+                this.laps = [];            
+                this.lapCounter = 1;       
+                
+                this.dom = {};
+                this.initDOM();
+            }
+
+            initDOM() {
+                // Proses kloning template HTML
+                const template = document.getElementById('stopwatch-template');
+                const clone = template.content.cloneNode(true);
+                
+                this.dom.container = clone.querySelector('.stopwatch-card');
+                this.dom.titleInput = clone.querySelector('.sw-title');
+                this.dom.timeDisplay = clone.querySelector('.sw-time');
+                this.dom.btnStartPause = clone.querySelector('.sw-start-pause');
+                this.dom.btnMark = clone.querySelector('.sw-mark');
+                this.dom.btnReset = clone.querySelector('.sw-reset');
+                this.dom.btnDelete = clone.querySelector('.sw-delete');
+                this.dom.btnExport = clone.querySelector('.sw-export');
+                this.dom.lapList = clone.querySelector('.sw-lap-list');
+
+                this.dom.titleInput.value = this.title;
+
+                // Event Listeners Dasar
+                this.dom.titleInput.addEventListener('input', (e) => this.title = e.target.value);
+                this.dom.btnStartPause.addEventListener('click', () => this.toggleStartPause());
+                this.dom.btnMark.addEventListener('click', () => this.markElement());
+                this.dom.btnReset.addEventListener('click', () => this.handleResetRequest());
+                
+                this.dom.btnDelete.addEventListener('click', () => {
+                    UIModal.show(
+                        'Hapus Instrumen', 
+                        `Yakin ingin menghapus ${this.title || 'stopwatch ini'}? Data pengukuran yang belum diekspor akan hilang permanen.`, 
+                        'confirm', 
+                        () => app.removeStopwatch(this.id)
+                    );
+                });
+
+                this.dom.btnExport.addEventListener('click', () => this.exportToCSV());
+            }
+
+            toggleStartPause() {
+                if (this.running) {
+                    this.pause();
+                } else {
+                    this.start();
+                }
+            }
+
+            start() {
+                if (this.running) return;
+                
+                this.startTime = Date.now() - this.elapsed;
+                this.running = true;
+                
+                // Animasi & perubahan UI Tombol
+                this.dom.btnStartPause.innerHTML = `<i class="fas fa-pause text-xl group-hover:scale-110 transition-transform"></i><span class="text-[11px] uppercase tracking-wide">Jeda</span>`;
+                this.dom.btnStartPause.className = 'sw-start-pause flex flex-col items-center justify-center gap-1.5 py-3.5 bg-amber-500 text-white hover:bg-amber-600 rounded-xl font-semibold transition-all duration-200 group shadow-sm shadow-amber-200';
+            }
+
+            pause() {
+                if (!this.running) return;
+                
+                this.running = false;
+                
+                this.dom.btnStartPause.innerHTML = `<i class="fas fa-play text-xl group-hover:scale-110 transition-transform"></i><span class="text-[11px] uppercase tracking-wide">Lanjut</span>`;
+                this.dom.btnStartPause.className = 'sw-start-pause flex flex-col items-center justify-center gap-1.5 py-3.5 bg-emerald-500 text-white hover:bg-emerald-600 rounded-xl font-semibold transition-all duration-200 group shadow-sm shadow-emerald-200';
+            }
+
+            updateDisplay() {
+                this.dom.timeDisplay.textContent = formatTime(this.elapsed);
+            }
+
+            handleResetRequest() {
+                if(this.elapsed > 0) {
+                    UIModal.show(
+                        'Ulang Waktu (Reset)', 
+                        'Yakin ingin mengembalikan waktu ke nol dan menghapus semua catatan elemen kerja di stopwatch ini?', 
+                        'confirm', 
+                        () => this.performReset()
+                    );
+                } else {
+                    this.performReset();
+                }
+            }
+
+            performReset() {
+                this.running = false;
+                this.elapsed = 0;
+                this.laps = [];
+                this.lapCounter = 1;
+                this.updateDisplay();
+                
+                this.dom.btnStartPause.innerHTML = `<i class="fas fa-play text-xl group-hover:scale-110 transition-transform"></i><span class="text-[11px] uppercase tracking-wide">Mulai</span>`;
+                this.dom.btnStartPause.className = 'sw-start-pause flex flex-col items-center justify-center gap-1.5 py-3.5 bg-slate-100 hover:bg-emerald-500 text-slate-700 hover:text-white rounded-xl font-semibold transition-all duration-200 group';
+                
+                this.dom.lapList.innerHTML = `
+                    <div class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center opacity-70">
+                        <i class="fas fa-stopwatch-20 text-3xl text-slate-300 mb-2"></i>
+                        <span class="text-sm font-medium text-slate-500">Telah di-reset.</span>
+                        <span class="text-xs text-slate-400 mt-1">Tekan <b>Mulai</b> kembali.</span>
+                    </div>
+                `;
+            }
+
+            markElement() {
+                // Diperbolehkan menandai jika waktu lebih dari nol
+                if (!this.running && this.elapsed === 0) return;
+
+                // Memberi efek animasi saat tombol ditekan
+                this.dom.btnMark.classList.add('scale-95', 'bg-blue-600', 'text-white');
+                setTimeout(() => {
+                    this.dom.btnMark.classList.remove('scale-95', 'bg-blue-600', 'text-white');
+                }, 150);
+
+                const currentCumulative = this.elapsed;
+                
+                // Mencari waktu kumulatif elemen sebelumnya untuk mendapatkan selisih waktu (Waktu Elemen)
+                const prevCumulative = this.laps.length > 0 ? this.laps[0].cumulativeMs : 0; 
+                // Karena array kita PREPEND (tambah ke indeks 0), lap terakhir selalu di indeks 0
+                const elementTime = currentCumulative - prevCumulative;
+
+                const lapData = {
+                    no: this.lapCounter++,
+                    elementMs: elementTime,
+                    cumulativeMs: currentCumulative,
+                    note: ""
+                };
+
+                // Memasukkan ke urutan paling depan agar muncul di paling atas tabel
+                this.laps.unshift(lapData); 
+                this.addLapToUI(lapData);
+            }
+
+            addLapToUI(lap) {
+                // Menghapus elemen placeholder jika ini adalah data pertama
+                if (this.laps.length === 1) {
+                    this.dom.lapList.innerHTML = '';
+                }
+
+                const row = document.createElement('div');
+                row.className = "grid grid-cols-12 gap-2 px-3 py-2.5 bg-white rounded-xl shadow-sm border border-slate-100 items-center animate-slide-in hover:border-blue-200 transition-colors";
+                row.innerHTML = `
+                    <div class="col-span-2 flex justify-center">
+                        <span class="text-[11px] font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-md">#${lap.no}</span>
+                    </div>
+                    <div class="col-span-3 text-right font-mono text-[13px] font-bold text-blue-600">${formatTimeShort(lap.elementMs)}</div>
+                    <div class="col-span-3 text-right font-mono text-[13px] font-medium text-slate-500">${formatTimeShort(lap.cumulativeMs)}</div>
+                    <div class="col-span-4 pl-1">
+                        <input type="text" placeholder="Ketik keterangan..." class="w-full text-[11px] py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400 focus:outline-none transition-all placeholder-slate-300" data-lap-id="${lap.no}">
+                    </div>
+                `;
+
+                // Menyimpan catatan setiap kali pengguna mengetik
+                const input = row.querySelector('input');
+                input.addEventListener('input', (e) => {
+                    const id = parseInt(e.target.getAttribute('data-lap-id'));
+                    const targetLap = this.laps.find(l => l.no === id);
+                    if(targetLap) targetLap.note = e.target.value;
+                });
+
+                // Menambahkan baris ke atas list (prepend)
+                this.dom.lapList.prepend(row);
+            }
+
+            exportToCSV() {
+                if (this.laps.length === 0) {
+                    UIModal.show('Data Kosong', 'Tidak ada data elemen kerja yang bisa diunduh. Silakan catat waktu terlebih dahulu.', 'info');
+                    return;
+                }
+
+                let csvContent = "data:text/csv;charset=utf-8,";
+                // Header untuk Excel / CSV
+                csvContent += "Nama Subjek,Elemen Ke,Waktu Elemen (ms),Format Waktu Elemen,Waktu Kumulatif (ms),Format Waktu Kumulatif,Keterangan/Catatan\n";
+
+                const safeTitle = `"${(this.title || 'Subjek_Tanpa_Nama').replace(/"/g, '""')}"`; 
+                
+                // Karena this.laps urutannya dari terbaru ke terlama (karena unshift), kita reverse saat di-export agar urut 1, 2, 3...
+                const reversedLaps = [...this.laps].reverse();
+
+                reversedLaps.forEach(lap => {
+                    const safeNote = `"${(lap.note || '').replace(/"/g, '""')}"`;
+                    const row = [
+                        safeTitle,
+                        lap.no,
+                        lap.elementMs,
+                        formatTime(lap.elementMs),
+                        lap.cumulativeMs,
+                        formatTime(lap.cumulativeMs),
+                        safeNote
+                    ];
+                    csvContent += row.join(",") + "\n";
+                });
+
+                // Trigger pengunduhan file
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                
+                const cleanTitle = (this.title || 'export').replace(/[^a-z0-9]/gi, '_').toLowerCase();
+                const filename = `TimeStudy_${cleanTitle}_${new Date().toISOString().slice(0,10)}.csv`;
+                
+                link.setAttribute("download", filename);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        }
+
+        const app = {
+            stopwatches: new Map(),
+            nextId: 1,
+            gridElement: document.getElementById('stopwatch-grid'),
+            emptyStateElement: document.getElementById('empty-state'),
+
+            init() {
+                // Inisialisasi awal menambahkan 1 stopwatch
+                this.addStopwatch();
+                
+                // Menjalankan render loop dengan frame rate tinggi
+                requestAnimationFrame(() => this.loop());
+            },
+
+            addStopwatch() {
+                const sw = new Stopwatch(this.nextId++);
+                this.stopwatches.set(sw.id, sw);
+                this.gridElement.appendChild(sw.dom.container);
+                this.updateEmptyState();
+            },
+
+            removeStopwatch(id) {
+                const sw = this.stopwatches.get(id);
+                if (sw) {
+                    sw.dom.container.remove();
+                    this.stopwatches.delete(id);
+                    this.updateEmptyState();
+                }
+            },
+
+            updateEmptyState() {
+                if (this.stopwatches.size === 0) {
+                    this.gridElement.classList.add('hidden');
+                    this.emptyStateElement.classList.remove('hidden');
+                    this.emptyStateElement.classList.add('flex');
+                } else {
+                    this.gridElement.classList.remove('hidden');
+                    this.emptyStateElement.classList.add('hidden');
+                    this.emptyStateElement.classList.remove('flex');
+                }
+            },
+
+            startAll() {
+                if (this.stopwatches.size === 0) return;
+                let isAnyRunning = false;
+                
+                this.stopwatches.forEach(sw => {
+                    if(!sw.running) sw.start();
+                    isAnyRunning = true;
+                });
+            },
+
+            pauseAll() {
+                this.stopwatches.forEach(sw => {
+                    if(sw.running) sw.pause();
+                });
+            },
+
+            // High precision loop updating timer displays
+            loop() {
+                const now = Date.now();
+                this.stopwatches.forEach(sw => {
+                    if (sw.running) {
+                        sw.elapsed = now - sw.startTime;
+                        sw.updateDisplay();
+                    }
+                });
+                
+                requestAnimationFrame(() => this.loop());
+            }
+        };
+
+        // Memulai aplikasi saat DOM selesai dimuat
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+
+    </script>
+</body>
+</html>
