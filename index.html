@@ -77,9 +77,9 @@
         </div>
     </header>
 
-    <main class="flex-grow max-w-7xl mx-auto w-full px-2 sm:px-6 lg:px-8 py-4 sm:py-8 relative">
+    <main class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 relative">
         <!-- Area Grid Stopwatch -->
-        <div id="stopwatch-grid" class="grid gap-2 sm:gap-4 lg:gap-6">
+        <div id="stopwatch-grid" class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
             <!-- Kartu-kartu stopwatch akan dirender di sini oleh JavaScript -->
         </div>
         
@@ -108,64 +108,64 @@
     </div>
 
     <template id="stopwatch-template">
-        <div class="stopwatch-card bg-white rounded-xl sm:rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col transition-all hover:shadow-md h-[420px] sm:h-[580px]">
+        <div class="stopwatch-card bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col transition-all hover:shadow-md h-[580px]">
             
             <!-- Header Kartu Stopwatch (Judul & Aksi) -->
-            <div class="px-3 sm:px-5 py-2 sm:py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/80">
-                <div class="flex-grow mr-2 sm:mr-4 relative group">
-                    <i class="fas fa-pen absolute left-2 top-1/2 transform -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 text-[10px] sm:text-xs transition-colors"></i>
-                    <input type="text" class="sw-title w-full pl-6 sm:pl-7 pr-1 sm:pr-2 py-1 sm:py-1.5 bg-transparent border-b-2 border-transparent hover:border-slate-300 focus:border-blue-500 focus:outline-none font-bold text-slate-800 text-sm sm:text-lg transition-colors placeholder-slate-400" placeholder="Ketik Nama Subjek...">
+            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/80">
+                <div class="flex-grow mr-4 relative group">
+                    <i class="fas fa-pen absolute left-2 top-1/2 transform -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 text-xs transition-colors"></i>
+                    <input type="text" class="sw-title w-full pl-7 pr-2 py-1.5 bg-transparent border-b-2 border-transparent hover:border-slate-300 focus:border-blue-500 focus:outline-none font-bold text-slate-800 text-lg transition-colors placeholder-slate-400" placeholder="Ketik Nama Subjek...">
                 </div>
-                <div class="flex items-center gap-0.5 sm:gap-1">
-                    <button class="sw-export p-1.5 sm:p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors tooltip-btn" title="Unduh CSV Excel">
-                        <i class="fas fa-file-csv text-sm sm:text-lg"></i>
+                <div class="flex items-center gap-1">
+                    <button class="sw-export p-2 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors tooltip-btn" title="Unduh CSV Excel">
+                        <i class="fas fa-file-csv text-lg"></i>
                     </button>
-                    <button class="sw-delete p-1.5 sm:p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors tooltip-btn" title="Hapus Stopwatch">
-                        <i class="fas fa-trash-alt text-sm sm:text-base"></i>
+                    <button class="sw-delete p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors tooltip-btn" title="Hapus Stopwatch">
+                        <i class="fas fa-trash-alt"></i>
                     </button>
                 </div>
             </div>
 
             <!-- Tampilan Waktu (Digital Timer) -->
-            <div class="px-2 sm:px-5 py-3 sm:py-7 flex flex-col items-center justify-center flex-shrink-0 bg-white">
-                <div class="sw-time text-[22px] min-[380px]:text-3xl sm:text-5xl md:text-6xl font-mono font-bold text-slate-800 tracking-tighter sm:tracking-tight tabular-nums">00:00:00.00</div>
-                <div class="text-[8px] sm:text-[10px] font-bold text-slate-400 mt-1 sm:mt-3 tracking-wider sm:tracking-widest uppercase bg-slate-100 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full whitespace-nowrap">Jam : Menit : Detik . MS</div>
+            <div class="px-5 py-7 flex flex-col items-center justify-center flex-shrink-0 bg-white">
+                <div class="sw-time text-5xl sm:text-6xl font-mono font-bold text-slate-800 tracking-tight tabular-nums">00:00:00.00</div>
+                <div class="text-[10px] font-bold text-slate-400 mt-3 tracking-widest uppercase bg-slate-100 px-3 py-1 rounded-full">Jam : Menit : Detik . MS</div>
             </div>
 
             <!-- Kontrol Tombol Utama (Mulai, Tandai, Ulang) -->
-            <div class="px-2 sm:px-5 pb-2 sm:pb-5 grid grid-cols-3 gap-1 sm:gap-3 flex-shrink-0">
-                <button class="sw-start-pause flex flex-col items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-3.5 bg-slate-100 hover:bg-emerald-500 text-slate-700 hover:text-white rounded-lg sm:rounded-xl font-semibold transition-all duration-200 group">
-                    <i class="fas fa-play text-sm sm:text-xl group-hover:scale-110 transition-transform"></i>
-                    <span class="text-[9px] sm:text-[11px] uppercase tracking-wide">Mulai</span>
+            <div class="px-5 pb-5 grid grid-cols-3 gap-3 flex-shrink-0">
+                <button class="sw-start-pause flex flex-col items-center justify-center gap-1.5 py-3.5 bg-slate-100 hover:bg-emerald-500 text-slate-700 hover:text-white rounded-xl font-semibold transition-all duration-200 group">
+                    <i class="fas fa-play text-xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[11px] uppercase tracking-wide">Mulai</span>
                 </button>
                 
-                <button class="sw-mark flex flex-col items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-3.5 bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white rounded-lg sm:rounded-xl font-semibold transition-all duration-200 group border border-blue-100 hover:border-transparent shadow-sm">
-                    <i class="fas fa-flag text-sm sm:text-xl group-hover:scale-110 transition-transform"></i>
-                    <span class="text-[9px] sm:text-[11px] uppercase tracking-wide">Tandai</span>
+                <button class="sw-mark flex flex-col items-center justify-center gap-1.5 py-3.5 bg-blue-50 hover:bg-blue-600 text-blue-700 hover:text-white rounded-xl font-semibold transition-all duration-200 group border border-blue-100 hover:border-transparent shadow-sm">
+                    <i class="fas fa-flag text-xl group-hover:scale-110 transition-transform"></i>
+                    <span class="text-[11px] uppercase tracking-wide">Tandai</span>
                 </button>
                 
-                <button class="sw-reset flex flex-col items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-3.5 bg-slate-100 hover:bg-slate-700 text-slate-700 hover:text-white rounded-lg sm:rounded-xl font-semibold transition-all duration-200 group">
-                    <i class="fas fa-rotate-left text-sm sm:text-xl group-hover:scale-110 transition-transform -scale-x-100"></i>
-                    <span class="text-[9px] sm:text-[11px] uppercase tracking-wide">Ulang</span>
+                <button class="sw-reset flex flex-col items-center justify-center gap-1.5 py-3.5 bg-slate-100 hover:bg-slate-700 text-slate-700 hover:text-white rounded-xl font-semibold transition-all duration-200 group">
+                    <i class="fas fa-rotate-left text-xl group-hover:scale-110 transition-transform -scale-x-100"></i>
+                    <span class="text-[11px] uppercase tracking-wide">Ulang</span>
                 </button>
             </div>
 
             <!-- Tabel Data Waktu Elemen Berkelanjutan -->
             <div class="flex-grow flex flex-col border-t border-slate-200 overflow-hidden bg-slate-50">
-                <div class="grid grid-cols-12 gap-1 sm:gap-2 px-1 sm:px-4 py-1.5 sm:py-2.5 bg-slate-200/60 text-[8px] sm:text-[10px] font-bold text-slate-600 uppercase tracking-tight sm:tracking-wider border-b border-slate-200">
+                <div class="grid grid-cols-12 gap-2 px-4 py-2.5 bg-slate-200/60 text-[10px] font-bold text-slate-600 uppercase tracking-wider border-b border-slate-200">
                     <div class="col-span-2 text-center" title="Nomor Elemen">Elm</div>
                     <div class="col-span-3 text-right" title="Waktu per Elemen (Selisih)">W. Elemen</div>
                     <div class="col-span-3 text-right" title="Waktu Kumulatif (Total)">Kumulatif</div>
-                    <div class="col-span-4 pl-1 sm:pl-3">Catatan</div>
+                    <div class="col-span-4 pl-3">Catatan</div>
                 </div>
                 
                 <!-- Kontainer Daftar Waktu (Scrollable) -->
-                <div class="sw-lap-list lap-container flex-grow overflow-y-auto px-1 sm:px-3 py-1 sm:py-3 space-y-1 sm:space-y-2 relative">
+                <div class="sw-lap-list lap-container flex-grow overflow-y-auto px-3 py-3 space-y-2 relative">
                     <!-- Placeholder sebelum ada data -->
-                    <div class="absolute inset-0 flex flex-col items-center justify-center p-2 sm:p-4 text-center opacity-70">
-                        <i class="fas fa-stopwatch-20 text-xl sm:text-3xl text-slate-300 mb-1 sm:mb-2"></i>
-                        <span class="text-[10px] sm:text-sm font-medium text-slate-500">Belum ada tanda.</span>
-                        <span class="text-[9px] sm:text-xs text-slate-400 mt-1 hidden sm:inline">Tekan <b>Mulai</b> lalu gunakan tombol <b>Tandai</b> untuk mencatat elemen kerja.</span>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center opacity-70">
+                        <i class="fas fa-stopwatch-20 text-3xl text-slate-300 mb-2"></i>
+                        <span class="text-sm font-medium text-slate-500">Belum ada tanda.</span>
+                        <span class="text-xs text-slate-400 mt-1">Tekan <b>Mulai</b> lalu gunakan tombol <b>Tandai</b> untuk mencatat elemen kerja.</span>
                     </div>
                 </div>
             </div>
@@ -323,8 +323,8 @@
                 this.running = true;
                 
                 // Animasi & perubahan UI Tombol
-                this.dom.btnStartPause.innerHTML = `<i class="fas fa-pause text-sm sm:text-xl group-hover:scale-110 transition-transform"></i><span class="text-[9px] sm:text-[11px] uppercase tracking-wide">Jeda</span>`;
-                this.dom.btnStartPause.className = 'sw-start-pause flex flex-col items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-3.5 bg-amber-500 text-white hover:bg-amber-600 rounded-lg sm:rounded-xl font-semibold transition-all duration-200 group shadow-sm shadow-amber-200';
+                this.dom.btnStartPause.innerHTML = `<i class="fas fa-pause text-xl group-hover:scale-110 transition-transform"></i><span class="text-[11px] uppercase tracking-wide">Jeda</span>`;
+                this.dom.btnStartPause.className = 'sw-start-pause flex flex-col items-center justify-center gap-1.5 py-3.5 bg-amber-500 text-white hover:bg-amber-600 rounded-xl font-semibold transition-all duration-200 group shadow-sm shadow-amber-200';
             }
 
             pause() {
@@ -332,8 +332,8 @@
                 
                 this.running = false;
                 
-                this.dom.btnStartPause.innerHTML = `<i class="fas fa-play text-sm sm:text-xl group-hover:scale-110 transition-transform"></i><span class="text-[9px] sm:text-[11px] uppercase tracking-wide">Lanjut</span>`;
-                this.dom.btnStartPause.className = 'sw-start-pause flex flex-col items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-3.5 bg-emerald-500 text-white hover:bg-emerald-600 rounded-lg sm:rounded-xl font-semibold transition-all duration-200 group shadow-sm shadow-emerald-200';
+                this.dom.btnStartPause.innerHTML = `<i class="fas fa-play text-xl group-hover:scale-110 transition-transform"></i><span class="text-[11px] uppercase tracking-wide">Lanjut</span>`;
+                this.dom.btnStartPause.className = 'sw-start-pause flex flex-col items-center justify-center gap-1.5 py-3.5 bg-emerald-500 text-white hover:bg-emerald-600 rounded-xl font-semibold transition-all duration-200 group shadow-sm shadow-emerald-200';
             }
 
             updateDisplay() {
@@ -360,14 +360,14 @@
                 this.lapCounter = 1;
                 this.updateDisplay();
                 
-                this.dom.btnStartPause.innerHTML = `<i class="fas fa-play text-sm sm:text-xl group-hover:scale-110 transition-transform"></i><span class="text-[9px] sm:text-[11px] uppercase tracking-wide">Mulai</span>`;
-                this.dom.btnStartPause.className = 'sw-start-pause flex flex-col items-center justify-center gap-1 sm:gap-1.5 py-2 sm:py-3.5 bg-slate-100 hover:bg-emerald-500 text-slate-700 hover:text-white rounded-lg sm:rounded-xl font-semibold transition-all duration-200 group';
+                this.dom.btnStartPause.innerHTML = `<i class="fas fa-play text-xl group-hover:scale-110 transition-transform"></i><span class="text-[11px] uppercase tracking-wide">Mulai</span>`;
+                this.dom.btnStartPause.className = 'sw-start-pause flex flex-col items-center justify-center gap-1.5 py-3.5 bg-slate-100 hover:bg-emerald-500 text-slate-700 hover:text-white rounded-xl font-semibold transition-all duration-200 group';
                 
                 this.dom.lapList.innerHTML = `
-                    <div class="absolute inset-0 flex flex-col items-center justify-center p-2 sm:p-4 text-center opacity-70">
-                        <i class="fas fa-stopwatch-20 text-xl sm:text-3xl text-slate-300 mb-1 sm:mb-2"></i>
-                        <span class="text-[10px] sm:text-sm font-medium text-slate-500">Telah di-reset.</span>
-                        <span class="text-[9px] sm:text-xs text-slate-400 mt-1 hidden sm:inline">Tekan <b>Mulai</b> kembali.</span>
+                    <div class="absolute inset-0 flex flex-col items-center justify-center p-4 text-center opacity-70">
+                        <i class="fas fa-stopwatch-20 text-3xl text-slate-300 mb-2"></i>
+                        <span class="text-sm font-medium text-slate-500">Telah di-reset.</span>
+                        <span class="text-xs text-slate-400 mt-1">Tekan <b>Mulai</b> kembali.</span>
                     </div>
                 `;
             }
@@ -408,15 +408,15 @@
                 }
 
                 const row = document.createElement('div');
-                row.className = "grid grid-cols-12 gap-1 sm:gap-2 px-1 sm:px-3 py-1 sm:py-2.5 bg-white rounded-lg sm:rounded-xl shadow-sm border border-slate-100 items-center animate-slide-in hover:border-blue-200 transition-colors";
+                row.className = "grid grid-cols-12 gap-2 px-3 py-2.5 bg-white rounded-xl shadow-sm border border-slate-100 items-center animate-slide-in hover:border-blue-200 transition-colors";
                 row.innerHTML = `
                     <div class="col-span-2 flex justify-center">
-                        <span class="text-[9px] sm:text-[11px] font-bold text-slate-700 bg-slate-100 px-1 py-0.5 sm:px-2 sm:py-1 rounded sm:rounded-md">#${lap.no}</span>
+                        <span class="text-[11px] font-bold text-slate-700 bg-slate-100 px-2 py-1 rounded-md">#${lap.no}</span>
                     </div>
-                    <div class="col-span-3 text-right font-mono text-[10px] sm:text-[13px] font-bold text-blue-600 tracking-tighter">${formatTimeShort(lap.elementMs)}</div>
-                    <div class="col-span-3 text-right font-mono text-[10px] sm:text-[13px] font-medium text-slate-500 tracking-tighter">${formatTimeShort(lap.cumulativeMs)}</div>
-                    <div class="col-span-4 pl-0.5 sm:pl-1">
-                        <input type="text" placeholder="Catatan..." class="w-full text-[9px] sm:text-[11px] py-1 sm:py-1.5 px-1 sm:px-2 bg-slate-50 border border-slate-200 rounded sm:rounded-md focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400 focus:outline-none transition-all placeholder-slate-300" data-lap-id="${lap.no}">
+                    <div class="col-span-3 text-right font-mono text-[13px] font-bold text-blue-600">${formatTimeShort(lap.elementMs)}</div>
+                    <div class="col-span-3 text-right font-mono text-[13px] font-medium text-slate-500">${formatTimeShort(lap.cumulativeMs)}</div>
+                    <div class="col-span-4 pl-1">
+                        <input type="text" placeholder="Ketik keterangan..." class="w-full text-[11px] py-1.5 px-2 bg-slate-50 border border-slate-200 rounded-md focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400 focus:outline-none transition-all placeholder-slate-300" data-lap-id="${lap.no}">
                     </div>
                 `;
 
@@ -494,7 +494,6 @@
                 const sw = new Stopwatch(this.nextId++);
                 this.stopwatches.set(sw.id, sw);
                 this.gridElement.appendChild(sw.dom.container);
-                this.updateGridClasses();
                 this.updateEmptyState();
             },
 
@@ -503,22 +502,7 @@
                 if (sw) {
                     sw.dom.container.remove();
                     this.stopwatches.delete(id);
-                    this.updateGridClasses();
                     this.updateEmptyState();
-                }
-            },
-
-            updateGridClasses() {
-                const count = this.stopwatches.size;
-                const grid = this.gridElement;
-                grid.className = "grid gap-2 sm:gap-4 lg:gap-6";
-                
-                if (count <= 1) {
-                    // Jika hanya 1 stopwatch, biarkan lebarnya 1 kolom full
-                    grid.classList.add("grid-cols-1", "lg:grid-cols-2", "xl:grid-cols-3");
-                } else {
-                    // Jika ada 2 atau lebih, paksa menjadi 2 kolom menyamping walau di HP (mobile)
-                    grid.classList.add("grid-cols-2", "lg:grid-cols-2", "xl:grid-cols-3");
                 }
             },
 
